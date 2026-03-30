@@ -1,12 +1,12 @@
 "use client";
-import { useState } from "react";
+import { useState, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 
 export default function Register() {
   const [formData, setFormData] = useState({ email: "", password: "", role: "user" });
   const router = useRouter();
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const res = await fetch("http://localhost:3000/api/auth/signup", {
       method: "POST",
