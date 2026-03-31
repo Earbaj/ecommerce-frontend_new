@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Swal from 'sweetalert2';
 
 export default function Login() {
   const [formData, setFormData] = useState({ email: "", password: "" });
@@ -19,15 +20,35 @@ export default function Login() {
         body: JSON.stringify(formData),
       });
 
+      const data = await res.json(); // রেসপন্স ডেটা আগে নিন
+
       if (res.ok) {
-        const data = await res.json();
+        // সফল হলে সুন্দর সাকসেস মেসেজ
+        Swal.fire({
+          icon: 'success',
+          title: 'Login Successful!',
+          text: 'Redirecting to dashboard...',
+          timer: 2000,
+          showConfirmButton: false
+        });
+        
         localStorage.setItem("user", JSON.stringify(data));
-        router.push("/dashboard");
+        setTimeout(() => router.push("/dashboard"), 2000);
       } else {
-        alert("Invalid email or password!");
+        // সার্ভার থেকে আসা মেসেজ দেখাবে (যেমন: User not found)
+        Swal.fire({
+          icon: 'error',
+          title: 'Oops...',
+          text: data.message || "Invalid email or password!",
+          confirmButtonColor: '#10b981' // emerald-600
+        });
       }
     } catch (error) {
-      alert("Connection failed! Check if your backend is running.");
+      Swal.fire({
+        icon: 'warning',
+        title: 'Connection Error',
+        text: 'Server is not responding. Please try again later.',
+      });
     } finally {
       setLoading(false);
     }
