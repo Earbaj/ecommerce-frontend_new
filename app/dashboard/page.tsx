@@ -15,6 +15,8 @@ export default function DashboardPage() {
     const [orders, setOrders] = useState<any[]>([]);
     const [totalUsers, setTotalUsers] = useState(0);
     const [categories, setCategories] = useState([]);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedProduct, setSelectedProduct] = useState<any>(null);
 
     // ডাটা ফেচ করা
     useEffect(() => {
@@ -122,6 +124,42 @@ export default function DashboardPage() {
     };
 
 
+
+
+    // এডিট বাটন ক্লিক করলে যা হবে
+    const handleEditClick = (product: any) => {
+        setSelectedProduct(product);
+        setFormData({
+            title: product.title,
+            price: product.price,
+            stock: product.stock,
+            category: product.category,
+            description: product.description
+        });
+        setIsModalOpen(true);
+    };
+
+    // আপডেট সাবমিট করার ফাংশন
+    const handleUpdateProduct = async (e: React.FormEvent) => {
+        e.preventDefault();
+        try {
+            const updatePayload = {
+                price: Number(formData.price),
+                stock: Number(formData.stock)
+            };
+
+            // আপনার ডক অনুযায়ী PATCH /products/:id এ অ্যারে পাঠাতে হবে
+            await api.patch(`/products/${selectedProduct._id}`, [updatePayload]);
+
+            alert('Product Updated! 🎉');
+            setIsModalOpen(false);
+            window.location.reload();
+        } catch (err) {
+            alert('Update failed');
+        }
+    };
+
+
     return (
         <div className="container mx-auto p-6 bg-gray-50 min-h-screen text-black">
 
@@ -208,12 +246,19 @@ export default function DashboardPage() {
                                 {products.map((p: any) => (
                                     <tr key={p._id} className="border-t hover:bg-gray-50">
                                         <td className="p-4 flex items-center gap-3">
-                                            <img src={`http://localhost:3000${p.images[0]}`} className="w-10 h-10 object-cover rounded" alt="" />
+                                            <img src={`http://localhost:4000${p.images[0]}`} className="w-10 h-10 object-cover rounded" alt="" />
                                             <span className="font-medium truncate w-32">{p.title}</span>
                                         </td>
                                         <td className="p-4 text-blue-600 font-bold">${p.price}</td>
                                         <td className="p-4">{p.stock}</td>
                                         <td className="p-4">
+                                            {/* এডিট বাটন */}
+                                            <button
+                                                onClick={() => handleEditClick(p)}
+                                                className="text-blue-500 hover:bg-blue-50 p-2 rounded transition"
+                                            >
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" /><path d="m15 5 4 4" /></svg>
+                                            </button>
                                             <button onClick={() => deleteProduct(p._id)} className="text-red-500 hover:bg-red-50 p-2 rounded">
                                                 <Trash2 size={18} />
                                             </button>
@@ -271,6 +316,56 @@ export default function DashboardPage() {
                     </tbody>
                 </table>
             </div>
+
+            {/* --- Edit Product Dialog --- */}
+            {isModalOpen && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[100] p-4">
+                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 relative">
+                        <h2 className="text-2xl font-bold mb-4 text-gray-800">Update Product</h2>
+                        <p className="text-sm text-gray-500 mb-6">Editing: <span className="font-semibold">{selectedProduct?.title}</span></p>
+
+                        <form onSubmit={handleUpdateProduct} className="space-y-4">
+                            <div>
+                                <label className="block text-sm font-medium mb-1">Price (৳)</label>
+                                <input
+                                    type="number"
+                                    className="w-full border p-2 rounded-lg text-black bg-gray-50 focus:ring-2 focus:ring-blue-500 outline-none"
+                                    value={formData.price}
+                                    onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                                    required
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium mb-1">Stock Quantity</label>
+                                <input
+                                    type="number"
+                                    className="w-full border p-2 rounded-lg text-black bg-gray-50 focus:ring-2 focus:ring-blue-500 outline-none"
+                                    value={formData.stock}
+                                    onChange={(e) => setFormData({ ...formData, stock: e.target.value })}
+                                    required
+                                />
+                            </div>
+
+                            <div className="flex gap-3 mt-8">
+                                <button
+                                    type="button"
+                                    onClick={() => setIsModalOpen(false)}
+                                    className="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 transition"
+                                >
+                                    Save Changes
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
 
         </div>
     );
