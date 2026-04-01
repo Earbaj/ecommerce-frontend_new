@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'http://localhost:3000', // আপনার NestJS সার্ভারের URL
+  baseURL: 'http://localhost:4000', // আপনার NestJS সার্ভারের URL
 });
 
 // প্রতিটি রিকোয়েস্টে অটোমেটিক টোকেন পাঠানোর জন্য ইন্টারসেপ্টর
