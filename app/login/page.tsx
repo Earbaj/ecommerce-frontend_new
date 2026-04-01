@@ -2,17 +2,19 @@
 import { useState } from 'react';
 import api from '../../lib/axious/axios';
 import { useRouter } from 'next/navigation';
+import { useAuth } from '@/context/AuthContext';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const router = useRouter();
+  const { login } = useAuth();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       const res = await api.post('/auth/login', { email, password });
-      localStorage.setItem('token', res.data.access_token); // টোকেন সেভ করা
+      login(res.data.access_token); // এটি কল করলে পুরো অ্যাপে স্টেট বদলে যাবে
       alert('Login Successful!');
       router.push('/'); // হোমপেজে পাঠিয়ে দেওয়া
     } catch (err) {

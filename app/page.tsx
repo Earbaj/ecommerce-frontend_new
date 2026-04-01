@@ -1,33 +1,28 @@
 'use client';
-import { useEffect, useState } from 'react';
-import api from '../lib/axious/axios';
+import { useAuth } from '@/context/AuthContext';
+import ProductList from '../components/Navbar'; // আপনার আগের প্রোডাক্ট গ্রিড কোডটি এখানে আলাদা ফাইল করে নিতে পারেন
 
 export default function HomePage() {
-  const [products, setProducts] = useState([]);
+  const { user, loading } = useAuth();
 
-  useEffect(() => {
-    api.get('/products').then(res => setProducts(res.data.products));
-  }, []);
+  if (loading) return <p className="text-center mt-10">Loading...</p>;
 
   return (
     <div className="container mx-auto p-10">
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-        {products.map((p: any) => (
-          <div key={p._id} className="bg-white border rounded-xl overflow-hidden shadow-sm hover:shadow-md transition">
-            <img src={`http://localhost:3000${p.images[0]}`} className="h-56 w-full object-cover" />
-            <div className="p-4">
-              <h3 className="font-bold text-lg truncate">{p.title}</h3>
-              <p className="text-gray-500 text-sm mb-2">{p.category?.name}</p>
-              <div className="flex justify-between items-center">
-                <span className="text-xl font-bold text-blue-600">${p.price}</span>
-                <button className="bg-black text-white px-4 py-2 rounded-lg text-sm hover:bg-gray-800">
-                  Add to Cart
-                </button>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
+      {user ? (
+        <div className="mb-10 p-6 bg-blue-50 border border-blue-200 rounded-2xl">
+          <h1 className="text-3xl font-bold text-blue-800">Welcome Back, User! 👋</h1>
+          <p className="text-blue-600 mt-2">You are now in your Dashboard. Start shopping or manage your orders.</p>
+        </div>
+      ) : (
+        <div className="text-center mb-10">
+          <h1 className="text-4xl font-extrabold text-gray-900">Discover Our Collection</h1>
+          <p className="text-gray-500 mt-2">Login to enjoy member-only discounts and faster checkout!</p>
+        </div>
+      )}
+
+      {/* প্রোডাক্ট লিস্ট সব সময় দেখাবে অথবা আপনার ইচ্ছে মতো কন্ডিশন দিতে পারেন */}
+      <ProductList /> 
     </div>
   );
 }
