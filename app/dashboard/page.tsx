@@ -47,5 +47,6 @@ export default function DashboardPage() {
         <button className="w-full bg-blue-600 text-white py-3 rounded-lg mt-6 font-bold hover:bg-blue-700">Upload Product</button>
       </form>
     </div>
+    
   );
 }

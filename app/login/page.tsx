@@ -14,10 +14,19 @@ export default function LoginPage() {
     e.preventDefault();
     try {
       const res = await api.post('/auth/login', { email, password });
-      login(res.data.access_token); // এটি কল করলে পুরো অ্যাপে স্টেট বদলে যাবে
-      alert('Login Successful!');
-      router.push('/'); // হোমপেজে পাঠিয়ে দেওয়া
-    } catch (err) {
+      
+      // আপনার API রেসপন্স অনুযায়ী ডাটা ডিস্ট্রাকচার করা
+      const { access_token, data } = res.data; 
+
+      // এখানে 'data' হচ্ছে আপনার ইউজার অবজেক্ট (যাতে role: 'admin' আছে)
+      if (access_token && data) {
+        login(access_token, data); // টোকেন এবং ইউজার ডাটা (id, email, role) পাঠিয়ে দিন
+        alert('Login Successful!');
+        router.push('/'); 
+      }
+      
+    } catch (err: any) {
+      console.error("Login Error:", err.response?.data || err.message);
       alert('Login Failed! Check credentials.');
     }
   };
