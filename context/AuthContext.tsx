@@ -9,20 +9,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const token = localStorage.getItem('token');
-    if (token) {
-      // এখানে চাইলে আপনি ব্যাকএন্ডে /auth/me হিট করে ইউজারের ডাটা আনতে পারেন
-      setUser({ loggedIn: true }); 
+    const savedUser = localStorage.getItem('user');
+    
+    if (token && savedUser) {
+      try {
+        setUser(JSON.parse(savedUser)); // আগের সেভ করা ইউজার ডাটা (নাম, রোল) লোড করা
+      } catch (e) {
+        localStorage.removeItem('user');
+      }
     }
     setLoading(false);
   }, []);
 
-  const login = (token: string) => {
+  // userData প্যারামিটার যোগ করা হয়েছে যাতে ব্যাকএন্ড থেকে পাঠানো user অবজেক্ট ধরা যায়
+  const login = (token: string, userData: any) => {
     localStorage.setItem('token', token);
-    setUser({ loggedIn: true });
+    localStorage.setItem('user', JSON.stringify(userData)); // সরাসরি userData সেভ করুন
+    setUser(userData); // স্টেট আপডেট
   };
 
   const logout = () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('user');
     setUser(null);
     window.location.href = '/login';
   };
